@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dd.electronicbusiness.dao.OrderMapper">
+
+    <insert id="saveOrder" parameterType="com.dd.electronicbusiness.model.Order"
+            useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO orders (customer_id, order_date, total_price, status, shipping_address)
+        VALUES (#{customerId}, #{orderDate}, #{totalPrice}, #{status}, #{shippingAddress})
+    </insert>
+
+    <insert id="saveOrderItems" parameterType="java.util.List">
+        INSERT INTO order_items (order_id, product_id, quantity, price)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.orderId}, #{item.productId}, #{item.quantity}, #{item.price})
+        </foreach>
+    </insert>
+
+    <select id="findAllOrders" resultType="com.dd.electronicbusiness.model.Order">
+        SELECT * FROM orders ORDER BY order_date DESC
+    </select>
+
+    <resultMap id="orderResultMap" type="com.dd.electronicbusiness.model.Order">
+        <id property="id" column="order_id"/>
+        <result property="customerId" column="customer_id"/>
+        <result property="orderDate" column="order_date"/>
+        <result property="totalPrice" column="total_price"/>
+        <result property="status" column="status"/>
+        <result property="shippingAddress" column="shipping_address"/>
+
+        <collection property="orderItems" ofType="com.dd.electronicbusiness.model.OrderItem">
+            <id property="id" column="item_id"/>
+            <result property="orderId" column="order_id"/>
+            <result property="productId" column="product_id"/>
+            <result property="quantity" column="quantity"/>
+            <result property="price" column="item_price"/>
+        </collection>
+    </resultMap>
+
+    <select id="findOrderWithItemsById" resultMap="orderResultMap">
+        SELECT
+            a.id as order_id,
+            a.customer_id,
+            a.order_date,
+            a.total_price,
+            a.status,
+            a.shipping_address,
+            b.id as item_id,
+            b.product_id,
+            b.quantity,
+            b.price as item_price
+        FROM
+            orders a
+                LEFT JOIN
+            order_items b ON a.id = b.order_id
+        WHERE
+            a.id = #{id}
+    </select>
+
+</mapper>

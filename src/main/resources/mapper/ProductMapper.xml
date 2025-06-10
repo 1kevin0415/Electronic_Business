@@ -14,17 +14,17 @@
 
     <insert id="insert" parameterType="com.dd.electronicbusiness.model.Product" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO products (name, description, price, stock, image_url)
-        VALUES (#{name}, #{description}, #{price}, #{stock}, #{imageUrl, jdbcType=VARCHAR})
+        VALUES (#{p.name}, #{p.description}, #{p.price}, #{p.stock}, #{p.imageUrl, jdbcType=VARCHAR})
     </insert>
 
     <update id="update" parameterType="com.dd.electronicbusiness.model.Product">
         UPDATE products
-        SET name = #{name},
-            description = #{description},
-            price = #{price},
-            stock = #{stock},
-            image_url = #{imageUrl, jdbcType=VARCHAR}
-        WHERE id = #{id}
+        SET name = #{p.name},
+            description = #{p.description},
+            price = #{p.price},
+            stock = #{p.stock},
+            image_url = #{p.imageUrl, jdbcType=VARCHAR}
+        WHERE id = #{p.id}
     </update>
 
     <delete id="deleteById">
