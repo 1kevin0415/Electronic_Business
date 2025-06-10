@@ -29,7 +29,44 @@ public class ProductController {
     @PutMapping("/{id}")
     public Product updateProduct(@PathVariable Long id, @RequestBody Product product) { /*...*/ return product; }
     @PostMapping("/update/{id}")
-    public Product updateProductWithFile(@PathVariable Long id, Product product, @RequestParam(value = "imageFile", required = false) MultipartFile imageFile) { /*...*/ return product; }
+    public Product updateProductWithFile(@PathVariable Long id,
+                                         Product product, // Spring Boot 会自动绑定表单中的同名字段
+                                         @RequestParam(value = "imageFile", required = false) MultipartFile imageFile) {
+
+        System.out.println("\n\n--- [调试日志] 开始处理更新商品请求: ID = " + id + " ---");
+
+        // 1. 从数据库中获取最新的商品数据
+        Product existingProduct = productMapper.findById(id);
+        if (existingProduct == null) {
+            // 如果找不到商品，可以抛出异常或返回错误信息
+            throw new RuntimeException("商品不存在，ID: " + id);
+        }
+
+        // 2. 更新商品信息
+        existingProduct.setName(product.getName());
+        existingProduct.setDescription(product.getDescription());
+        existingProduct.setPrice(product.getPrice());
+        existingProduct.setStock(product.getStock());
+
+        // 3. 如果上传了新图片，则更新图片URL
+        if (imageFile != null && !imageFile.isEmpty()) {
+            System.out.println("[调试日志] 接收到新的替换图片: " + imageFile.getOriginalFilename());
+            // (可选) 在这里可以加上删除旧图片的逻辑
+            String newFileName = fileStorageService.storeFile(imageFile);
+            existingProduct.setImageUrl(newFileName);
+            System.out.println("[调试日志] 图片已更新，新文件名: " + newFileName);
+        } else {
+            System.out.println("[调试日志] 本次更新未上传新图片。");
+        }
+
+        // 4. 将更新后的商品信息存入数据库
+        System.out.println("[调试日志] 准备将更新后的 product 对象存入数据库: " + existingProduct.toString());
+        productMapper.update(existingProduct);
+        System.out.println("[调试日志] 数据库更新操作完成。");
+        System.out.println("--- [调试日志] 更新商品请求处理完毕 ---\n\n");
+
+        return existingProduct;
+    }
     @DeleteMapping("/{id}")
     public void deleteProduct(@PathVariable Long id) { productMapper.deleteById(id); }
 
@@ -77,5 +114,12 @@ public class ProductController {
         System.out.println("--- [调试日志] 新增商品请求处理完毕 ---\n\n");
 
         return product;
+    }
+    @GetMapping("/images/show/{fileName:.+}")
+    public org.springframework.http.ResponseEntity<org.springframework.core.io.Resource> serveFile(@PathVariable String fileName) {
+        org.springframework.core.io.Resource resource = fileStorageService.loadFileAsResource(fileName);
+        return org.springframework.http.ResponseEntity.ok()
+                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
     }
 }
