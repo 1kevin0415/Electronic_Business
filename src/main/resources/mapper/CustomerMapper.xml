@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dd.electronicbusiness.dao.CustomerMapper">
+
+    <select id="findAllCustomers" resultType="com.dd.electronicbusiness.model.Customer">
+        SELECT * FROM customers ORDER BY registration_date DESC
+    </select>
+
+    <select id="findCustomerById" resultType="com.dd.electronicbusiness.model.Customer">
+        SELECT * FROM customers WHERE id = #{id}
+    </select>
+
+    <insert id="saveCustomer" parameterType="com.dd.electronicbusiness.model.Customer"
+            useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO customers (name, email, phone, address, registration_date)
+        VALUES (#{name}, #{email}, #{phone}, #{address}, #{registrationDate})
+    </insert>
+
+</mapper>

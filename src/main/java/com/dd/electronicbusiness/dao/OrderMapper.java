@@ -22,4 +22,6 @@ public interface OrderMapper {
     List<Order> findAllOrders();
 
     Order findOrderWithItemsById(Long id);
+
+    void update(Order order);
 }

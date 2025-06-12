@@ -59,4 +59,14 @@
             a.id = #{id}
     </select>
 
+    <update id="update" parameterType="com.dd.electronicbusiness.model.Order">
+        UPDATE orders
+        SET customer_id = #{customerId},
+            order_date = #{orderDate},
+            total_price = #{totalPrice},
+            status = #{status},
+            shipping_address = #{shippingAddress}
+        WHERE id = #{id}
+    </update>
+
 </mapper>

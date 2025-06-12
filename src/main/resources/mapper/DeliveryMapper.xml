@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dd.electronicbusiness.dao.DeliveryMapper">
+
+    <select id="findAllDeliveries" resultType="com.dd.electronicbusiness.model.Delivery">
+        SELECT * FROM deliveries ORDER BY dispatch_date DESC
+    </select>
+
+    <select id="findDeliveryById" resultType="com.dd.electronicbusiness.model.Delivery">
+        SELECT * FROM deliveries WHERE id = #{id}
+    </select>
+
+    <select id="findDeliveryByOrderId" resultType="com.dd.electronicbusiness.model.Delivery">
+        SELECT * FROM deliveries WHERE order_id = #{orderId}
+    </select>
+
+    <insert id="saveDelivery" parameterType="com.dd.electronicbusiness.model.Delivery"
+            useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO deliveries (order_id, shipping_company, tracking_number, dispatch_date, estimated_delivery_date, actual_delivery_date, status)
+        VALUES (#{orderId}, #{shippingCompany}, #{trackingNumber}, #{dispatchDate}, #{estimatedDeliveryDate}, #{actualDeliveryDate}, #{status})
+    </insert>
+
+</mapper>
