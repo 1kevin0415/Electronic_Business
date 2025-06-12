@@ -18,4 +18,6 @@ public interface ProductMapper {
     int update(@Param("p") Product product);
 
     Product findById(Long id);
+
+    long count();
 }

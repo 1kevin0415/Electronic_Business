@@ -2,9 +2,7 @@ package com.dd.electronicbusiness.service;
 
 import com.dd.electronicbusiness.dao.OrderMapper;
 import com.dd.electronicbusiness.dao.ProductMapper;
-import com.dd.electronicbusiness.model.Order;
-import com.dd.electronicbusiness.model.OrderItem;
-import com.dd.electronicbusiness.model.Product;
+import com.dd.electronicbusiness.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,15 +36,13 @@ public class OrderService {
         orderMapper.saveOrder(order);
 
         // 3. 为每一个OrderItem设置其所属的OrderID
-        for (OrderItem item : order.getOrderItems()) {
+        for (OrderItemDTO item : order.getOrderItems()) {
             item.setOrderId(order.getId());
 
-            // 4. (可选但推荐) 更新商品库存
             Product product = productMapper.findById(item.getProductId());
             if (product != null) {
                 int newStock = product.getStock() - item.getQuantity();
                 if (newStock < 0) {
-                    // 如果库存不足，抛出异常，整个事务会回滚
                     throw new RuntimeException("商品 " + product.getName() + " 库存不足！");
                 }
                 product.setStock(newStock);
@@ -60,11 +56,26 @@ public class OrderService {
         return order;
     }
 
-    public List<Order> getAllOrders() {
+    public List<OrderDTO> getAllOrders() {
         return orderMapper.findAllOrders();
     }
 
     public Order getOrderWithItemsById(Long id) {
         return orderMapper.findOrderWithItemsById(id);
+    }
+
+    public List<Order> getOrdersByStatus(String status) {
+        return orderMapper.findOrdersByStatus(status);
+    }
+    // 在 OrderService.java 中添加这个新方法
+    @Transactional
+    public Order updateOrderStatus(Long orderId, String newStatus) {
+        Order order = orderMapper.findOrderWithItemsById(orderId);
+        if (order == null) {
+            throw new RuntimeException("订单不存在，ID: " + orderId);
+        }
+        order.setStatus(newStatus);
+        orderMapper.update(order);
+        return order;
     }
 }

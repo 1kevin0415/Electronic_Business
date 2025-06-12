@@ -1,6 +1,7 @@
 package com.dd.electronicbusiness.dao;
 
 import com.dd.electronicbusiness.model.Order;
+import com.dd.electronicbusiness.model.OrderDTO;
 import com.dd.electronicbusiness.model.OrderItem;
 import org.apache.ibatis.annotations.Mapper;
 import java.util.List;
@@ -18,10 +19,14 @@ public interface OrderMapper {
      * 批量插入订单中的所有商品项
      * @param orderItems 订单商品项列表
      */
-    void saveOrderItems(List<OrderItem> orderItems);
-    List<Order> findAllOrders();
+    void saveOrderItems(List<? extends OrderItem> orderItems);
+    List<OrderDTO> findAllOrders();
 
     Order findOrderWithItemsById(Long id);
 
     void update(Order order);
+
+    List<Order> findOrdersByStatus(String status);
+
+    long count();
 }

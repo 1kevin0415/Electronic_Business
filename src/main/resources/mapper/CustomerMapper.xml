@@ -18,4 +18,8 @@
         VALUES (#{name}, #{email}, #{phone}, #{address}, #{registrationDate})
     </insert>
 
+    <select id="count" resultType="long">
+        SELECT COUNT(*) FROM customers
+    </select>
+
 </mapper>

@@ -1,11 +1,14 @@
 package com.dd.electronicbusiness.controller;
 
+import com.dd.electronicbusiness.model.ApiResponse;
 import com.dd.electronicbusiness.model.Order;
+import com.dd.electronicbusiness.model.OrderDTO;
 import com.dd.electronicbusiness.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -16,20 +19,31 @@ public class OrderController {
     private OrderService orderService;
 
     @PostMapping
-    public Order createOrder(@RequestBody Order order) {
-        // 当前端发送POST请求到 /api/orders 时，
-        // 请求体中的JSON数据会被自动转换为一个Order对象。
-        // 然后我们调用OrderService来处理创建订单的业务逻辑。
-        return orderService.createOrder(order);
+    public ApiResponse<Order> createOrder(@RequestBody Order order) {
+        return ApiResponse.success(orderService.createOrder(order));
     }
 
     @GetMapping
-    public List<Order> getAllOrders() {
-        return orderService.getAllOrders();
+    public ApiResponse<List<OrderDTO>> getAllOrders() {
+        return ApiResponse.success(orderService.getAllOrders());
     }
 
     @GetMapping("/{id}")
-    public Order getOrderById(@PathVariable Long id) {
-        return orderService.getOrderWithItemsById(id);
+    public ApiResponse<Order> getOrderById(@PathVariable Long id) {
+        return ApiResponse.success(orderService.getOrderWithItemsById(id));
+    }
+
+    @GetMapping(params = "status")
+    public ApiResponse<List<Order>> getOrdersByStatus(@RequestParam String status) {
+        return ApiResponse.success(orderService.getOrdersByStatus(status));
+    }
+
+    @PutMapping("/{id}/status")
+    public ApiResponse<Order> updateOrderStatus(@PathVariable Long id, @RequestBody Map<String, String> payload) {
+        String newStatus = payload.get("status");
+        if (newStatus == null || newStatus.isEmpty()) {
+            throw new IllegalArgumentException("新的状态值不能为空");
+        }
+        return ApiResponse.success(orderService.updateOrderStatus(id, newStatus));
     }
 }

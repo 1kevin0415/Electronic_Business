@@ -31,4 +31,7 @@
         DELETE FROM products WHERE id = #{id}
     </delete>
 
+    <select id="count" resultType="long">
+        SELECT COUNT(*) FROM products
+    </select>
 </mapper>

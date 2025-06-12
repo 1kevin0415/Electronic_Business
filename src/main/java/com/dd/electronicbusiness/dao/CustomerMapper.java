@@ -26,4 +26,5 @@ public interface CustomerMapper {
      */
     Customer findCustomerById(Long id);
 
+    long count();
 }

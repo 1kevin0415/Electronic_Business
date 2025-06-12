@@ -1,12 +1,13 @@
 package com.dd.electronicbusiness.model;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Objects;
 
-// 我们不再使用 import lombok.Data;
-// 我们不再需要 @Data 注解
+public class Product implements Serializable {
 
-public class Product {
+    private static final long serialVersionUID = 1L;
+
     private Long id;
     private String name;
     private String description;
@@ -14,11 +15,8 @@ public class Product {
     private Integer stock;
     private String imageUrl;
 
-    // 无参构造函数
     public Product() {
     }
-
-    // --- Getters and Setters ---
 
     public Long getId() {
         return id;
@@ -67,8 +65,6 @@ public class Product {
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
-
-    // --- equals, hashCode, toString ---
 
     @Override
     public boolean equals(Object o) {

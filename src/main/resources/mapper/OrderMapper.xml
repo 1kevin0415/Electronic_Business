@@ -18,45 +18,66 @@
         </foreach>
     </insert>
 
-    <select id="findAllOrders" resultType="com.dd.electronicbusiness.model.Order">
-        SELECT * FROM orders ORDER BY order_date DESC
+    <select id="findAllOrders" resultType="com.dd.electronicbusiness.model.OrderDTO">
+        SELECT
+            o.id,
+            o.customer_id,
+            o.order_date,
+            o.total_price,
+            o.status,
+            o.shipping_address,
+            c.name as customerName  -- 关键：从customers表中查询出name，并别名为customerName
+        FROM
+            orders o
+                LEFT JOIN
+            customers c ON o.customer_id = c.id
+        ORDER BY
+            o.order_date DESC
     </select>
 
-    <resultMap id="orderResultMap" type="com.dd.electronicbusiness.model.Order">
+    <resultMap id="orderResultMap" type="com.dd.electronicbusiness.model.OrderDTO">
         <id property="id" column="order_id"/>
         <result property="customerId" column="customer_id"/>
+        <result property="customerName" column="customer_name"/>
         <result property="orderDate" column="order_date"/>
         <result property="totalPrice" column="total_price"/>
         <result property="status" column="status"/>
         <result property="shippingAddress" column="shipping_address"/>
 
-        <collection property="orderItems" ofType="com.dd.electronicbusiness.model.OrderItem">
+        <collection property="orderItems" ofType="com.dd.electronicbusiness.model.OrderItemDTO">
             <id property="id" column="item_id"/>
             <result property="orderId" column="order_id"/>
             <result property="productId" column="product_id"/>
             <result property="quantity" column="quantity"/>
             <result property="price" column="item_price"/>
+            <result property="productName" column="product_name"/>
         </collection>
     </resultMap>
 
     <select id="findOrderWithItemsById" resultMap="orderResultMap">
         SELECT
-            a.id as order_id,
-            a.customer_id,
-            a.order_date,
-            a.total_price,
-            a.status,
-            a.shipping_address,
-            b.id as item_id,
-            b.product_id,
-            b.quantity,
-            b.price as item_price
+            o.id as order_id,
+            o.customer_id,
+            o.order_date,
+            o.total_price,
+            o.status,
+            o.shipping_address,
+            c.name as customer_name,
+            oi.id as item_id,
+            oi.product_id,
+            oi.quantity,
+            oi.price as item_price,
+            p.name as product_name
         FROM
-            orders a
+            orders o
                 LEFT JOIN
-            order_items b ON a.id = b.order_id
+            customers c ON o.customer_id = c.id
+                LEFT JOIN
+            order_items oi ON o.id = oi.order_id
+                LEFT JOIN
+            products p ON oi.product_id = p.id
         WHERE
-            a.id = #{id}
+            o.id = #{id}
     </select>
 
     <update id="update" parameterType="com.dd.electronicbusiness.model.Order">
@@ -68,5 +89,13 @@
             shipping_address = #{shippingAddress}
         WHERE id = #{id}
     </update>
+
+    <select id="findOrdersByStatus" resultType="com.dd.electronicbusiness.model.Order">
+        SELECT * FROM orders WHERE status = #{status} ORDER BY order_date ASC
+    </select>
+
+    <select id="count" resultType="long">
+        SELECT COUNT(*) FROM orders
+    </select>
 
 </mapper>
